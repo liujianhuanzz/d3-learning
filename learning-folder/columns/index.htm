@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../../lib/d3.min.js"></script>
+    <title>Columns</title>
+</head>
+<body>
+    <button type="button" onclick="myAdd()">增加数据</button>
+    <button type="button" onclick="mySort()">数据排序</button>
+    <br>
+<script>
+var width = 400,
+    height = 400;
+
+var svg = d3.select("body").append("svg")
+                .attr("width", width).attr("height", height);
+
+var padding = {top: 5, right: 5, bottom: 5, left: 5};
+var dataset = [50, 43, 120, 87, 99, 167, 142];
+var rectStep = 5, rectWidth = width / dataset.length - rectStep;
+
+var rect = svg.selectAll("rect").data(dataset)
+                .enter()
+                .append("rect")
+                .attr("fill", "steelblue")
+                .attr("x", function(d, i){
+                    return padding.left + i * (rectWidth + rectStep);
+                })
+                .attr("y", function(d, i){
+                    return height - padding.bottom - d;
+                })
+                .attr("width", rectWidth)
+                .attr("height", function(d){
+                    return d
+                })
+
+var text = svg.selectAll("text").data(dataset)
+                .enter()
+                .append("text")
+                .attr("fill", "white")
+                .attr("font-size", "14px")
+                .attr("text-anchor", "middle")
+                .attr("x", function(d, i){
+                    return padding.left + i * (rectWidth + rectStep);
+                })
+                .attr("y", function(d){
+                    return height - padding.bottom - d;
+                })
+                .attr("dx", rectWidth / 2)
+                .attr("dy", "1em")
+                .text(function(d){
+                    return d;
+                })
+
+function draw(){
+    var updateRect = svg.selectAll("rect").data(dataset);
+    var enterRect = updateRect.enter();
+    var exitRect = updateRect.exit();
+    updateRect.attr("fill", "steelblue")
+                .attr("x", function(d, i){
+                    return padding.left + i * (rectStep + rectWidth)
+                })
+                .attr("y", function(d){
+                    return height - padding.bottom - d;
+                })
+                .attr("width", rectWidth)
+                .attr("height", function(d){
+                    return d
+                })
+
+    enterRect.append("rect")
+                .attr("x", function(d, i){
+                    return padding.left + i * (rectStep + rectWidth)
+                })
+                .attr("y", function(d){
+                    return height - padding.bottom - d;
+                })
+                .attr("width", rectWidth)
+                .attr("height", function(d){
+                    return d
+                })
+    
+    exitRect.remove();
+
+    var updateText = svg.selectAll("text").data(dataset);
+    var enterText = updateText.enter();
+    var exitText = updateText.exit();
+    updateText.attr("fill", "white")
+                .attr("font-size", "14px")
+                .attr("text-anchor", "middle")
+                .attr("x", function(d, i){
+                    return padding.left + i * (rectWidth + rectStep);
+                })
+                .attr("y", function(d){
+                    return height - padding.bottom - d;
+                })
+                .attr("dx", rectWidth / 2)
+                .attr("dy", "1em")
+                .text(function(d){
+                    return d;
+                })
+
+    enterText.append("text")
+                .attr("fill", "white")
+                .attr("font-size", "14px")
+                .attr("text-anchor", "middle")
+                .attr("x", function(d, i){
+                    return padding.left + i * (rectWidth + rectStep);
+                })
+                .attr("y", function(d){
+                    return height - padding.bottom - d;
+                })
+                .attr("dx", rectWidth / 2)
+                .attr("dy", "1em")
+                .text(function(d){
+                    return d;
+                })
+
+    exitText.remove()
+}
+
+function myAdd(){
+    dataset.push(Math.floor(Math.random() * 100 + 20));
+    rectWidth = width / dataset.length - rectStep;
+    draw()
+}
+
+function mySort(){
+    dataset.sort(d3.ascending);
+    draw();
+}
+</script>
+</body>
+</html>
