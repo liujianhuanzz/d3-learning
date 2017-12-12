@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../../lib/d3.min.js"></script>
+    <title>area chart</title>
+</head>
+<body>
+<script>
+var dataset = [80, 120, 130, 70, 60, 90];
+
+var width = 400, height = 400;
+
+var areaPath = d3.svg.area()
+                    .x(function(d, i){return 50 + i * 80})
+                    .y0(function(d, i){return height / 2})
+                    .y1(function(d, i){return height / 2 - d})
+                    .interpolate("basis");
+
+var svg = d3.select("body").append("svg")
+                    .attr("width", width)
+                    .attr("height", height);
+
+svg.append("path").attr("d", areaPath(dataset))
+                .attr("stroke", "black")
+                .attr("stroke-width", "3px")
+                .attr("fill", "yellow")
+</script>
+</body>
+</html>
