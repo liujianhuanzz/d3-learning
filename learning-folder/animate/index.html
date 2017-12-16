@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../../lib/d3.min.js"></script>
+    <title>Animate demo</title>
+</head>
+<body>
+<script>
+var width = 500, height = 500;
+
+var svg = d3.select("body").append("svg")
+                .attr("width", width)
+                .attr("height", height);
+
+var rect = svg.append("rect")
+                .attr("width", 100)
+                .attr("height", 30)
+                .attr("x", 10)
+                .attr("y", 10)
+                .style("fill", "steelblue")
+                .transition()
+                .duration(2000)
+                .attrTween("width", function(d, i, a){
+                    return function(t){
+                        return Number(a) + t * 300;
+                    }
+                }) 
+
+var text = svg.append("text")
+                .attr("x", 100)
+                .attr("y", 10)
+                .attr("dy", "1.2em")
+                .attr("text-anchor", "end")
+                .style("fill", "white")
+                .text(100);
+
+var initx = text.attr("x"), initText = text.text();
+
+text.transition()
+    .duration(2000)
+    .tween("text", function(){
+        return function(t){
+            d3.select(this)
+                    .attr("x", Number(initx) + t * 300)
+                    .text(Math.floor(Number(initText) + t * 300))
+        }
+    })
+</script> 
+</body>
+</html>
