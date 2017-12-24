@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../../lib/d3.min.js"></script>
+    <title>zoom behavior</title>
+</head>
+<body>
+<script>
+var width = 300, height = 300;
+var svg = d3.select("body").append("svg")
+                    .attr("width", width)
+                    .attr("height", height);
+
+var circles = [{cx: 150, cy: 200, r: 30},{cx: 220, cy: 200, r: 30},{cx: 150, cy: 270, r: 30},{cx: 220, cy: 270, r: 30}];   
+
+var x = d3.scale.linear()
+                .domain([0, width])
+                .range([0, width]);
+
+var y = d3.scale.linear()
+                .domain([0, height])
+                .range([0, height]);
+
+var zoom = d3.behavior.zoom()
+                .x(x)
+                .y(y)
+                .scaleExtent([1, 10])
+                .on("zoom", function(d){
+                    console.log(x.domain())
+                    console.log(x.range())
+                    console.log(y.domain())
+                    console.log(y.range())
+                    d3.select(this).attr("transform", "translate(" + d3.event.translate + ")" + "scale(" + d3.event.scale + ")");
+                })
+
+var g = svg.append("g").call(zoom);
+
+g.selectAll("circle").data(circles)
+                .enter()
+                .append("circle")
+                .attr("cx", function(d){return d.cx;})
+                .attr("cy", function(d){return d.cy;})
+                .attr("r", function(d){return d.r;})
+                .attr("fill", "black");
+</script> 
+</body>
+</html>

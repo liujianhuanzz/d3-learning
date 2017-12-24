@@ -13,7 +13,7 @@ var svg = d3.select("body").append("svg")
                     .attr("width", 300)
                     .attr("height", 300);
 
-var circles = [{cx: 150, cy: 200, r: 30}];
+var circles = [{cx: 150, cy: 200, r: 30},{cx: 250, cy: 200, r: 30}];
 var drag = d3.behavior.drag()
             .origin(function(d, i){
                 return {x: d.cx, y: d.cy};
