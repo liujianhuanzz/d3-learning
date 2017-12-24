@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../../lib/d3.min.js"></script>
+    <title>key interaction</title>
+</head>
+<body>
+<script>
+var width = 500, height = 500;
+
+var svg = d3.select("body").append("svg")
+                    .attr("width", width)
+                    .attr("height", height);
+
+var characters = ["A", "S", "D", "F"];
+var rects = svg.selectAll("rect")
+                .data(characters)
+                .enter()
+                .append("rect")
+                .attr("x", function(d, i){
+                    return 10 + i * 60;
+                })
+                .attr("y", 150)
+                .attr("width", 55)
+                .attr("height", 55)
+                .attr("rx", 5)
+                .attr("ry", 5)
+                .attr("fill", "black");
+
+var texts = svg.selectAll("text")
+                .data(characters)
+                .enter()
+                .append("text")
+                .attr("x", function(d, i){
+                    return 10 + i * 60;
+                })
+                .attr("y", 150)
+                .attr("dx", 10)
+                .attr("dy", 25)
+                .attr("fill", "white")
+                .attr("font-size", 24)
+                .text(function(d){return d;})
+
+d3.select("body").on("keydown", function(){
+    rects.attr("fill", function(d){
+        if(d === String.fromCharCode(d3.event.keyCode)){
+            return "yellow";
+        }else{
+            return "black";
+        }
+    })
+}).on("keyup", function(){
+    rects.attr("fill", "black");
+})
+</script>
+</body>
+</html>
