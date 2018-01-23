@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <script src="../../lib/d3.min.js"></script>
+    <title>arc layout</title>
+</head>
+<body>
+<script>
+var width = 400, height = 400;
+var svg = d3.select("body").append("svg").attr({'width': width, 'height': height});
+
+//data
+var dataset = [['小米', 60.8],['三星', 58.4], ['联想', 47.3], ['苹果', 46.6], ['华为', 41.3], ['酷派', 41.3], ['其他', 111.5]];
+var pie = d3.layout.pie()
+                //.startAngle(Math.PI * 0.2)
+                //.endAngle(Math.PI * 1.5)
+                .value(function(d){return d[1];})
+var piedata = pie(dataset);
+console.log(piedata)
+
+//arc
+var outerRadius = width / 3, innerRadius = 0;
+var arc = d3.svg.arc()
+                .innerRadius(innerRadius)
+                .outerRadius(outerRadius);
+
+//color
+var color = d3.scale.category20();
+
+//pie
+var arcs = svg.selectAll("g").data(piedata)
+                    .enter()
+                    .append("g")
+                    .each(function(d){
+                        d.dx = width / 2;
+                        d.dy = height / 2;
+                    })
+                    .attr("transform", "translate(" + (width / 2) + "," + (height / 2) + ")")
+
+function dragmove(d){
+    d.dx += d3.event.dx;
+    d.dy += d3.event.dy;
+    d3.select(this).attr("transform", "translate(" + d.dx + "," + d.dy + ")");
+}
+
+var drag = d3.behavior.drag()
+                .origin(null)
+                .on("drag", dragmove);
+
+arcs.call(drag);
+
+arcs.append('path').attr("fill", function(d, i){return color(i);})
+                    .attr("d", function(d){
+                        return arc(d);
+                    })
+                    .on("mouseover", function(){
+                        d3.select(this).attr("transform", "scale(1.1)")
+                    })
+                    .on("mouseout", function(){
+                        d3.select(this).attr("transform", "scale(1)")
+                    });
+
+arcs.append("text")
+    .attr("transform", function(d){
+        var x = arc.centroid(d)[0] * 1.4;
+        var y = arc.centroid(d)[1] * 1.4;
+        return "translate(" + x + ", " + y + ")";
+    })
+    .attr("text-anchor", "middle")
+    .text(function(d){
+        var percent = Number(d.value) / d3.sum(dataset, function(d){return d[1];}) * 100;
+        return percent.toFixed(1) + "%";
+    })
+
+arcs.append("line")
+    .attr("stroke", "black")
+    .attr("x1", function(d){return arc.centroid(d)[0] * 2;})
+    .attr("y1", function(d){return arc.centroid(d)[1] * 2;})
+    .attr("x2", function(d){return arc.centroid(d)[0] * 2.2;})
+    .attr("y2", function(d){return arc.centroid(d)[1] * 2.2;})
+
+arcs.append("text")
+    .attr("transform", function(d){
+        var x = arc.centroid(d)[0] * 2.5;
+        var y = arc.centroid(d)[1] * 2.5;
+        return "translate(" + x + ", " + y + ")";
+    })
+    .attr("text-anchor", "middle")
+    .text(function(d){
+        return d.data[0];
+    })
+</script>
+</body>
+</html>

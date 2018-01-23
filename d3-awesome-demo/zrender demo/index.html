@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>粒子网格动画</title>
+    <script src="./node_modules/zrender/dist/zrender.min.js"></script>
+<style>
+#main{
+    position: absolute;
+    left: 0;
+    top: 0;
+    background: #000;
+    z-index: -1;
+}
+</style>
+</head>
+<body>
+    <canvas id="main"></canvas>
+<script>
+var winH = window.innerHeight;
+var winW = window.innerWidth;
+var opts = {
+    background: '#000',
+    particalRadius: 2,
+    particalColor: 'rgb(0, 255, 0)',
+    lineColor: 'rbg(0, 255, 0)',
+    joinLineDis: 800,
+    particalAmount: 30,
+    speed: 5
+};
+
+var tid;
+var particals = [];
+
+var zr = zrender.init(document.getElementById("main"), {width: winW, height: winH});
+zr.dom.style.backgroundColor = opts.background;
+window.addEventListener('resize', function(){
+    clearTimeout(tid);
+
+    var tid = setTimeout(function(){
+        winW = zr.dom.width = window.innerWidth;
+        winH = zr.dom.height = window.innerHeight;
+
+        zr.refresh();
+    }, 300); //这里设置了300ms的防抖间隔
+}, false);
+
+var init = function(){
+    for (var i = 0; i < opts.particalAmount; i++){
+        var p = new Partical();
+        particals.push(p);
+        zr.add(p.element);
+    }
+}
+
+var loop = function(){
+    for(var i = 0; i < particals.length; i++){
+        var p = particals[i];
+        p.updatePosition();
+        p.drawLines();
+    }
+
+    window.requestAnimationFrame(loop);
+}
+
+init();
+loop();
+
+function Partical(){
+    this.lines = [];
+    this.x = winW * Math.random();
+    this.y = winH * Math.random();
+    this.speed = opts.speed + Math.random();
+    this.angle = ~~(360 * Math.random());
+    this.color = opts.particalColor;
+    this.radius = opts.particalRadius + Math.random();
+    this.vector = {
+        x: this.speed * Math.cos(this.angle),
+        y: this.speed * Math.sin(this.angle)
+    };
+    this.element = new zrender.Circle({
+        shape: {
+            cx: this.x,
+            cy: this.y,
+            r: this.radius
+        },
+        style: {
+            fill: this.color
+        }
+    })
+
+    this.updatePosition = function(){
+        if(this.x >= winW || this.x <= 0){
+            this.vector.x *= -1;
+        }
+        if(this.y >= winW || this.y <= 0){
+            this.vector.y *= -1;
+        }
+        if(this.x > winW){
+            this.x = winW;
+        }
+        if(this.y > winW){
+            this.y = winW;
+        }
+        if(this.x < 0){
+            this.x = 0;
+        }
+        if(this.y < 0){
+            this.y = 0;
+        }
+
+        this.x += this.vector.x;
+        this.y += this.vector.y;
+
+        this.element.shape.cx = this.x;
+        this.element.shape.cy = this.y;
+
+        this.element.dirty();
+    }
+
+    this.drawLines = function(){
+        for(var i = 0; i < this.lines.length; i++){
+            var l = this.lines[i];
+            zr.remove(l);
+            l = null;
+        }
+
+        for(var i = 0; i < particals.length; i++){
+            var p = particals[i];
+
+            var distance = Math.sqrt(Math.pow(this.x - p.x, 2) + Math.pow(this.y - p.y, 2));
+
+            if(distance <= opts.joinLineDis && distance > 0){
+                var opacity = 1 - distance / opts.joinLineDis;
+                var color = opts.lineColor.match(/\d+/g);
+
+                let l = new zrender.Line({
+                    shape: {
+                        x1: this.x,
+                        y1: this.y,
+                        x2: p.x,
+                        y2: p.y
+                    },
+                    style: {
+                        stroke: 'rgba(' + color[0] + ',' + color[1] + ',' + color[2] + ',' + opacity + ')',
+                        fill: null
+                    }
+                })
+
+                this.lines.push(l);
+                zr.add(l);
+            }
+        }
+    }
+}
+</script>
+</body>
+</html>

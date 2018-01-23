@@ -12,6 +12,15 @@
     stroke: black;
     shape-rendering: crispEdges;
 }
+.overlay{
+    fill: none;
+    pointer-events: all;
+}
+.focusLine line{
+    fill: none;
+    stroke:aqua;
+    stroke-width: 1.5px;
+}
 </style>
 </head>
 <body>
@@ -86,6 +95,65 @@ var yAxis = d3.svg.axis().scale(yScale).orient("left")
 svg.append("g").attr("class", "axis")
                 .attr("transform", "translate(" + padding.left + ", " + padding.top + ")")
                 .call(yAxis)
+
+//rect for interact
+svg.append("rect")
+                .attr("class", "overlay")
+                .attr("x", padding.left)
+                .attr("y", padding.top)
+                .attr("width", width - padding.left - padding.right)
+                .attr("height", height - padding.top - padding.bottom)
+                .on("mousemove", mousemove)
+
+function mousemove(){
+    d3.selectAll(".focusCircle circle").remove();
+    d3.selectAll(".focusCircle text").remove();
+    d3.selectAll(".focusLine line").remove();
+
+    var mouseX = d3.mouse(this)[0] - padding.left;
+    var mouseY = d3.mouse(this)[1] - padding.top;
+
+    var x0 = xScale.invert(mouseX);
+    var y0 = yScale.invert(mouseY);
+
+    x0 = Math.round(x0);
+
+    var bisect = d3.bisector(function(d){return d[0];}).left;
+
+    dataset.forEach(function(item){
+        var index = bisect(item.gdp, x0)
+
+        var x = item.gdp[index][0], y = item.gdp[index][1];
+        var focusX = xScale(x) + padding.left, focusY = yScale(y) + padding.top;
+
+        var focusCircle = svg.append("g")
+                .attr("class", "focusCircle")
+                .attr("transform", "translate(" + focusX + ", " + focusY + ")");
+        focusCircle.append("circle")
+                .attr("r", 4.5);
+        focusCircle.append("text")
+                .attr("dx", 10)
+                .attr("dy", "1em")
+                .text(x + "年的GDP：" + y + "亿美元");
+
+        var focusLine = svg.append("g")
+                .attr("class", "focusLine")
+
+        var vLine = focusLine.append("line");
+        var hLine = focusLine.append("line");
+
+        vLine.attr("x1", focusX)
+            .attr("y1", focusY)
+            .attr("x2", focusX)
+            .attr("y2", height - padding.bottom);
+
+        hLine.attr("x1", focusX)
+            .attr("y1", focusY)
+            .attr("x2", padding.left)
+            .attr("y2", focusY);
+    })
+}
+
 </script>
 </body>
 </html>
